@@ -50,6 +50,7 @@
 #include <geometry_msgs/PoseStamped.h>
 #include <tf/transform_datatypes.h>
 #include <tf/transform_broadcaster.h>
+#include <ros/package.h>
 
 // PCL相关头文件
 #include <pcl/point_cloud.h>
@@ -235,39 +236,24 @@ void laserOdometryHandler(const nav_msgs::Odometry::ConstPtr &laserOdometry)
 	pubOdomAftMappedHighFrec.publish(odomAftMapped);
 }
 
-class LaserMapping{
-
+class LaserMapping {
 private:
-    // ... 现有的成员变量 ...
-    
-    // 添加新的成员变量
+    ros::NodeHandle nh;
     bool save_map;
     std::string map_save_path;
     std::string map_file_name;
 
 public:
-    LaserMapping():
-        // ... 现有的初始化列表 ...
-    {
-        // ... 现有的构造函数代码 ...
-        
-        // 读取新的参数
+    LaserMapping() : save_map(false), map_save_path(""), map_file_name("aloam_map") {
         nh.param<bool>("save_map", save_map, false);
         nh.param<std::string>("map_save_path", map_save_path, "");
         nh.param<std::string>("map_file_name", map_file_name, "aloam_map");
-        
-        // ... 现有的构造函数代码 ...
     }
 
-    // ... 现有的方法 ...
-
-    void process()
-    {
+    void process() {
         // ... 现有的处理代码 ...
 
-        // 在 process 函数的末尾，在 frameCount++ 之前添加
-        if (save_map)
-        {
+        if (save_map) {
             saveMap();
             save_map = false;  // 保存完后重置标志
         }
@@ -275,12 +261,10 @@ public:
         frameCount++;
     }
 
-    void saveMap()
-    {
+    void saveMap() {
         pcl::PointCloud<PointType>::Ptr globalMap(new pcl::PointCloud<PointType>());
         
-        for (int i = 0; i < laserCloudNum; i++)
-        {
+        for (int i = 0; i < laserCloudNum; i++) {
             *globalMap += *laserCloudCornerArray[i];
             *globalMap += *laserCloudSurfArray[i];
         }
@@ -288,12 +272,9 @@ public:
         std::string packagePath = ros::package::getPath("aloam_velodyne");
         std::string fullPath = packagePath + "/" + map_save_path + map_file_name + ".pcd";
         
-        if (pcl::io::savePCDFileBinary(fullPath, *globalMap) == 0)
-        {
+        if (pcl::io::savePCDFileBinary(fullPath, *globalMap) == 0) {
             ROS_INFO("Map successfully saved to %s", fullPath.c_str());
-        }
-        else
-        {
+        } else {
             ROS_ERROR("Failed to save map to %s", fullPath.c_str());
         }
     }
