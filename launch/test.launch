@@ -1,0 +1,44 @@
+<launch>
+
+    <!-- 激光雷达扫描线数 -->
+    <!-- 如果不是16线激光雷达，可以删除或调整此参数 -->
+    <!-- <param name="scan_line" type="int" value="16" /> -->
+
+    <!-- 设置 mapping 频率，1 为10 Hz，2 为5 Hz。这里保持1自动调整频率 -->
+    <param name="mapping_skip_frame" type="int" value="1" />
+
+    <!-- 移除过近的点，0.3米内的点会被忽略 -->
+    <param name="minimum_range" type="double" value="0.3"/>
+
+    <!-- 地图线分辨率 -->
+    <param name="mapping_line_resolution" type="double" value="0.2"/>
+
+    <!-- 地图平面分辨率 -->
+    <param name="mapping_plane_resolution" type="double" value="0.4"/>
+
+    <!-- 激光雷达点云处理节点 -->
+    <node pkg="aloam_velodyne" type="ascanRegistration" name="ascanRegistration" output="screen">
+        <!-- 重映射话题，适配 rosbag 中的 lidar_points -->
+        <remap from="/velodyne_points" to="/lidar_points"/>
+    </node>
+
+    <!-- 激光里程计节点 -->
+    <node pkg="aloam_velodyne" type="alaserOdometry" name="alaserOdometry" output="screen">
+        <!-- 如果需要自定义里程计框架，加入此参数 -->
+        <!-- <param name="laserOdometryFrame" value="odom"/> -->
+    </node>
+
+    <!-- 激光建图节点 -->
+    <node pkg="aloam_velodyne" type="alaserMapping" name="alaserMapping" output="screen">
+        <!-- 建图周期，可根据激光雷达频率调整，假设 10 Hz -->
+        <param name="scanPeriod" value="0.1"/>
+    </node>
+
+    <!-- RViz 可视化 -->
+    <arg name="rviz" default="true" />
+    <group if="$(arg rviz)">
+        <node launch-prefix="nice" pkg="rviz" type="rviz" name="rviz" 
+              args="-d $(find aloam_velodyne)/rviz_cfg/aloam_velodyne.rviz" />
+    </group>
+
+</launch>
