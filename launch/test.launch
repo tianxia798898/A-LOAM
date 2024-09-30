@@ -7,7 +7,7 @@
     <!-- 设置 mapping 频率，1 为10 Hz，2 为5 Hz。这里保持1自动调整频率 -->
     <param name="mapping_skip_frame" type="int" value="1" />
 
-    <!-- 移除过近的点，0.3米内的点会被忽略 -->
+    <!-- 移除过近的点，0.30米内的点会被忽略 -->
     <param name="minimum_range" type="double" value="0.3"/>
 
     <!-- 地图线分辨率 -->
