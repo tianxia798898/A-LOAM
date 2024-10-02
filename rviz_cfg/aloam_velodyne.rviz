@@ -639,7 +639,7 @@ Visualization Manager:
       Enabled: false
       Name: scan
     - Class: rviz/Image
-      Enabled: true
+      Enabled: false
       Image Topic: /kitti/image
       Max Value: 1
       Median window: 5
